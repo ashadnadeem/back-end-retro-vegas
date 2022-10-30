@@ -1,0 +1,6 @@
+# Package files
+node_modules/
+# Enviromental variables
+.env
+# Logs
+*.log

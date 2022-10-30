@@ -1,0 +1,54 @@
+### Default route
+GET http://localhost:3000
+
+### Protected route
+GET http://localhost:3000
+Authorization: Bearer <accessToken>
+
+### Route to test the error not found
+GET http://localhost:3000/health
+
+### Route to test auth/register
+POST  http://localhost:3000/auth/register
+# Header
+Content-Type: application/json
+
+# Body
+{
+    "email": "user@mail.com",
+    "password": "verysecured"
+}
+
+### Route to test auth/login
+POST  http://localhost:3000/auth/login
+# Header
+Content-Type: application/json
+
+# Body
+{
+    "email": "user@mail.com",
+    "password": "verysecured"
+}
+
+### Route to test auth/refresh_token
+POST  http://localhost:3000/auth/refresh_token
+# Header
+Content-Type: application/json
+
+# Body
+{
+    "refresh_token": "<refreshToken>"
+}
+
+### Route to test user/getAll
+GET http://localhost:3000/user/getAll
+# Header
+Authorization: Bearer <accessToken>
+
+### Route to test user/getAll
+GET http://localhost:3000/user/getMyDetails
+# Header
+Authorization: Bearer <accessToken>
+
+### Route to test auth/logout
+DELETE   http://localhost:3000/auth/logout

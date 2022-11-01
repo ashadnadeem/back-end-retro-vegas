@@ -12,21 +12,21 @@ GET http://localhost:3000/health
 POST  http://localhost:3000/auth/register
 # Header
 Content-Type: application/json
-
 # Body
 {
     "email": "user@mail.com",
-    "password": "verysecured"
+    "password": "verysecured",
+    "name" : "Hello world",
+    "phoneNo": "03212518089"
 }
 
 ### Route to test auth/login
 POST  http://localhost:3000/auth/login
 # Header
 Content-Type: application/json
-
 # Body
 {
-    "email": "user@mail.com",
+    "email": "user4@mail.com",
     "password": "verysecured"
 }
 
@@ -46,9 +46,13 @@ GET http://localhost:3000/user/getAll
 Authorization: Bearer <accessToken>
 
 ### Route to test user/getAll
-GET http://localhost:3000/user/getMyDetails
+GET http://localhost:3000/user?id=63611dfac12eaf8eb3704245
 # Header
-Authorization: Bearer <accessToken>
+Authorization: Bearer yJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2NjcyOTYwNzEsImV4cCI6MTY2NzI5Njk3MSwiYXVkIjoiNjM2MGU1NzAzY2ZjOWU0NzI4ZmM2YzU5IiwiaXNzIjoiQmFzaWNBUEkgRGVtbyBUZWFtIn0.Va8asYzetnBv0wuHX9m8cThs0YP8W55WU--O_uGz6E0
+
+### Route to test user/id
+GET http://localhost:3000/user/6360e5703cfc9e4728fc6c59
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2NjczMTAzODgsImV4cCI6MTY2NzMxMzk4OCwiYXVkIjoiNjM2MTFkZmFjMTJlYWY4ZWIzNzA0MjQ1IiwiaXNzIjoiQmFzaWNBUEkgRGVtbyBUZWFtIn0.Tiz0z33Y0RTyG-25IJsJVu9exmkBgr1h4kkVlhcmDiA
 
 ### Route to test auth/logout
 DELETE   http://localhost:3000/auth/logout

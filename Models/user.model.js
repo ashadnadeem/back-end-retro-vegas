@@ -1,26 +1,42 @@
-const mongoose = require('mongoose');
-const schema = mongoose.Schema;
-const bcrypt = require('bcrypt');
+import mongoose from 'mongoose';
+const Schema = mongoose.Schema;
+import bcrypt from 'bcrypt';
 
-const userSchema = new schema({
+const userSchema = new Schema({
     email: {
         type: String,
         required: true,
-        unique: true,
         lowercase: true
     },
     password: {
         type: String,
         required: true,
-        minlength: 6
+        minlength: 8
     },
+    name: String,
+    phoneNo: String,
+    address: String,
+    role:{
+        type: String,
+        enum: ["ADMIN", "USER"],
+        required: true
+    },
+    status:{
+        type: String,
+        enum: ["ACTIVE", "INACTIVE"],
+        required: true
+    },
+    customer_ID: String,
+    store_ID: String,
 });
 
 userSchema.pre('save', async function (next) {
     try{
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(this.password, salt);
-        this.password = hashedPassword;
+        if (this.isNew) {
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(this.password, salt);
+            this.password = hashedPassword;
+        }
         next();
     }catch(err){
         next(err);
@@ -35,5 +51,5 @@ userSchema.methods.isValidPassword = async function (password) {
     }
 };
 
-const user = mongoose.model('user', userSchema);
-module.exports = user;
+const User = mongoose.model('user', userSchema);
+export default User;

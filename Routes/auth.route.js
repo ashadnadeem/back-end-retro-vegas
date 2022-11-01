@@ -1,32 +1,75 @@
 // Import the modules from package
-const express = require('express');
-const router = express.Router();
-const create_error = require('http-errors');
+import { Router } from 'express';
+const router = Router();
+import createError from 'http-errors';
 // Import the Data Models
-const User = require('../Models/user.model');
+import User from '../Models/user.model.js';
+import Customer from '../Models/customer.model.js';
+import Store from '../Models/store.model.js';
+
 // Import the validation schema
-const {authSchema} = require('../helpers/validation_schema');
+import {authSchema} from '../helpers/validation_schema.js';
 // Import the JWT helper
-const {signAccessToken, signRefreshToken, verifyRefreshToken} = require('../helpers/jwt_helper');
+import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../helpers/jwt_helper.js';
 
 // Register Route
 router.post('/register', async(req, res, next) => {
     try {
         // Validate the email and password
         const validReq = await authSchema.validateAsync(req.body);
-        console.log(validReq);
+        
         // Check if user already exists
         const doesExist = await User.findOne({email: validReq.email});
-        if(doesExist) throw create_error.Conflict(`A user with ${validReq.email} is already registered`);
-        
+        if(doesExist) throw createError.Conflict(`A user with ${validReq.email} is already registered`);
+
         // Create new user
-        const user = User(validReq);
-        const saved = await user.save();
-        // Generate JWT access tokens{accessToken, refreshToken}
-        const accessToken = await signAccessToken(saved.id);
-        const refreshToken = await signRefreshToken(saved.id);
-        // Send the tokens to the client
-        res.send({accessToken, refreshToken});
+        const user = User({
+            email: validReq.email,
+            password: validReq.password,
+            name: validReq.name,
+            phoneNo: validReq.phoneNo,
+            role: "USER",
+            status:"ACTIVE",
+        });
+
+        const savedUser = await user.save();
+
+        const customer = Customer({
+            userID: savedUser.id,
+            cart: [],
+            favs: [],
+            orders: []
+        });
+        const savedCust = await customer.save();
+
+        const store = Store({
+            userID: savedUser.id,
+            cart: [],
+            favs: [],
+            orders: []
+        });
+        const savedStore = await store.save();
+
+        User.findOneAndUpdate({ _id: savedUser.id }, {
+            $set: {
+                customer_ID: savedCust.id,
+                store_ID: savedStore.id,
+            }
+        }).then(async(result) => {
+             
+            // Generate JWT access tokens{accessToken, refreshToken}
+            const accessToken = await signAccessToken(savedUser.id);
+            const refreshToken = await signRefreshToken(savedUser.id);
+       
+            // Send the tokens to the client
+            res.status(200).json({accessToken, refreshToken})
+        })
+        .catch(err => {
+            res.status(500).json({
+                error: err
+            })
+        })
+    
     } catch (error) {
         // Check if error is from joi validation then send unaccessible property error
         if(error.isJoi === true) error.status = 422;
@@ -42,11 +85,11 @@ router.post('/login', async(req, res, next) => {
 
         // Check if user exists
         const user = await User.findOne({email: validReq.email});
-        if(!user) throw create_error.NotFound('User not registered');
+        if(!user) throw createError.NotFound('User not registered');
 
         // Check if password is correct
         const isMatched = await user.isValidPassword(validReq.password);
-        if(!isMatched) throw create_error.Unauthorized('Username/Password not valid');
+        if(!isMatched) throw createError.Unauthorized('Username/Password not valid');
 
         // Generate JWT access tokens{accessToken, refreshToken}
         const accessToken = await signAccessToken(user.id);
@@ -56,7 +99,7 @@ router.post('/login', async(req, res, next) => {
 
     } catch (error) {
         // Check if error is from joi validation then send unaccessible property error
-        if(error.isJoi === true) next(create_error.BadRequest("Invalid Email or Password"));
+        if(error.isJoi === true) next(createError.BadRequest("Invalid Email or Password"));
         next(error);
     }
 });
@@ -65,7 +108,7 @@ router.post('/login', async(req, res, next) => {
 router.post('/refresh_token', async(req, res, next) => {
     try {
         let {refreshToken} = req.body;
-        if(!refreshToken) throw create_error.BadRequest();
+        if(!refreshToken) throw BadRequest();
         // Verify the refresh token
         const userID = await verifyRefreshToken(refreshToken);
 
@@ -84,4 +127,4 @@ router.delete('/logout', async(req, res, next) => {
     res.send('Logout Route');
 });
 
-module.exports = router;
+export default router;

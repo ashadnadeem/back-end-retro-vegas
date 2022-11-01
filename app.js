@@ -1,18 +1,20 @@
-const express = require('express');
-const morgan = require('morgan');
-const create_error = require('http-errors');
-require('dotenv').config();
-require('./helpers/init_mongodb');
+import express, { json, urlencoded } from 'express';
+import morgan from 'morgan';
+import createError from 'http-errors';
+import { config } from 'dotenv';
+import {} from './helpers/init_mongodb.js';
 
-const Auth_Route = require('./Routes/auth.route');
-const User_Route = require('./Routes/user.route');
+import Auth_Route from './Routes/auth.route.js';
+import User_Route from './Routes/user.route.js';
 
-const {verifyAccessToken} = require('./helpers/jwt_helper');
+import { verifyAccessToken } from './helpers/jwt_helper.js';
 
 const app = express();
+config();
+
 app.use(morgan('dev'));
-app.use(express.json());
-app.use(express.urlencoded({extended:true}));
+app.use(json());
+app.use(urlencoded({extended:true}));
 
 // Root Route
 app.get('/', verifyAccessToken, async(req, res, next) => {
@@ -27,10 +29,11 @@ app.use('/auth', Auth_Route);
 
 // Error Handler
 app.use(async(req, res, next) => {
-    next(create_error.NotFound("Not Found Error"));
+    next(createError.NotFound("Not Found Error"));
 });
 
 app.use(async(err, req, res, next) => {
+    console.log('x');
     res.status(err.status || 500);
     res.send({
         error: {

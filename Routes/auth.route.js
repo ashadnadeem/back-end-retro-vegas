@@ -44,9 +44,11 @@ router.post('/register', async(req, res, next) => {
 
         const store = Store({
             userID: savedUser.id,
-            cart: [],
-            favs: [],
-            orders: []
+            products: [],
+            name: savedUser.name,
+            rating: 0,
+            trustedSeller: false,
+            orders: [],
         });
         const savedStore = await store.save();
 

@@ -6,6 +6,7 @@ import {} from './helpers/init_mongodb.js';
 
 import Auth_Route from './Routes/auth.route.js';
 import User_Route from './Routes/user.route.js';
+import Customer_Route from './Routes/customer.route.js';
 
 import { verifyAccessToken } from './helpers/jwt_helper.js';
 
@@ -23,6 +24,9 @@ app.get('/', verifyAccessToken, async(req, res, next) => {
 
 // Users Route
 app.use('/user', verifyAccessToken, User_Route);
+
+// Customer Route
+app.use('/customer', verifyAccessToken, Customer_Route);
 
 // Auth Route
 app.use('/auth', Auth_Route);

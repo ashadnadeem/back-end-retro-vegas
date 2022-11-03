@@ -72,7 +72,7 @@ router.put('/:id', verifyAccessToken, async(req, res, next)=>{
             })
                 .then(result => {
                     res.status(200).json({
-                        updated_User: result
+                        user: result
                     })
                 })
                 .catch(err => {
@@ -95,7 +95,7 @@ router.delete('/:id', verifyAccessToken, async (req, res, next) => {
     })
         .then(result => {
             res.status(200).json({
-                updated_user: result
+                user: result
             })
         })
         .catch(err => {

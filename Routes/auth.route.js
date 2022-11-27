@@ -97,7 +97,7 @@ router.post('/login', async(req, res, next) => {
         const accessToken = await signAccessToken(user.id);
         const refreshToken = await signRefreshToken(user.id);
         // Send the tokens
-        res.send({accessToken, refreshToken});
+        res.send({accessToken, refreshToken, user});
 
     } catch (error) {
         // Check if error is from joi validation then send unaccessible property error

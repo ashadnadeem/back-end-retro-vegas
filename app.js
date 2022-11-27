@@ -3,7 +3,7 @@ import morgan from 'morgan';
 import createError from 'http-errors';
 import { config } from 'dotenv';
 import {} from './helpers/init_mongodb.js';
-
+import cors from 'cors'
 import Auth_Route from './Routes/auth.route.js';
 import User_Route from './Routes/user.route.js';
 import Customer_Route from './Routes/customer.route.js';
@@ -16,6 +16,7 @@ config();
 app.use(morgan('dev'));
 app.use(json());
 app.use(urlencoded({extended:true}));
+app.use(cors());
 
 // Root Route
 app.get('/', verifyAccessToken, async(req, res, next) => {

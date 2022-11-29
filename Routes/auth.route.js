@@ -6,6 +6,7 @@ import createError from 'http-errors';
 import User from '../Models/user.model.js';
 import Customer from '../Models/customer.model.js';
 import Store from '../Models/store.model.js';
+import {Header, Response} from '../Models/response.model.js';
 
 // Import the validation schema
 import {authSchema} from '../helpers/validation_schema.js';
@@ -20,7 +21,9 @@ router.post('/register', async(req, res, next) => {
         
         // Check if user already exists
         const doesExist = await User.findOne({email: validReq.email});
-        if(doesExist) throw createError.Conflict(`A user with ${validReq.email} is already registered`);
+        if(doesExist) res.status(200).json(
+            Response(Header(1, null, `A user with ${validReq.email} is already registered`))
+        );
 
         // Create new user
         const user = User({
@@ -62,20 +65,26 @@ router.post('/register', async(req, res, next) => {
             // Generate JWT access tokens{accessToken, refreshToken}
             const accessToken = await signAccessToken(savedUser.id);
             const refreshToken = await signRefreshToken(savedUser.id);
+
+            const user = result;
        
-            // Send the tokens to the client
-            res.status(200).json({accessToken, refreshToken})
+            res.status(200).json(
+                Response(Header(0, null, null),{accessToken, refreshToken, user})
+            );
         })
         .catch(err => {
-            res.status(500).json({
-                error: err
-            })
+            res.status(200).json(
+                Response(Header(1, null, 'An unknown error has occured.'))
+            );
         })
     
     } catch (error) {
         // Check if error is from joi validation then send unaccessible property error
         if(error.isJoi === true) error.status = 422;
-        next(error);
+        if(error.isJoi === true) error.status = 422;
+        res.status(200).json(
+            Response(Header(1, error.status, error))
+        );
     }
 });
 
@@ -87,22 +96,30 @@ router.post('/login', async(req, res, next) => {
 
         // Check if user exists
         const user = await User.findOne({email: validReq.email});
-        if(!user) throw createError.NotFound('User not registered');
-
+        if(!user) res.status(200).json(
+            Response(Header(1, null, "User not found!"))
+        );
         // Check if password is correct
         const isMatched = await user.isValidPassword(validReq.password);
-        if(!isMatched) throw createError.Unauthorized('Username/Password not valid');
+        if(!isMatched) res.status(200).json(
+            Response(Header(1, null, "Invalid Password"))
+        );
 
         // Generate JWT access tokens{accessToken, refreshToken}
         const accessToken = await signAccessToken(user.id);
         const refreshToken = await signRefreshToken(user.id);
+        
         // Send the tokens
-        res.send({accessToken, refreshToken, user});
+        res.status(200).json(
+            Response(Header(0, null, null),{accessToken, refreshToken, user})
+        );
 
     } catch (error) {
         // Check if error is from joi validation then send unaccessible property error
-        if(error.isJoi === true) next(createError.BadRequest("Invalid Email or Password"));
-        next(error);
+        if(error.isJoi === true) error.status = 422;
+        res.status(200).json(
+            Response(Header(1, error.status, 'Invalid email or password'))
+        );
     }
 });
 

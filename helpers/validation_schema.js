@@ -4,7 +4,7 @@ export const authSchema = JOI.object({
     email: JOI.string().email().required(),
     password: JOI.string().min(8).required(),
     name: JOI.string(),
-    phoneNo: JOI.string().min(11).max(11),
+    phoneNo: JOI.string().min(11).max(13),
 });
 
 export const userSchema = JOI.object({
@@ -50,4 +50,11 @@ export const orderProductSchema = JOI.object({
     orderID: JOI.string(),
     discount: JOI.number(),
     quantity: JOI.number(),
+});
+
+export const categorySchema = JOI.object({
+    name: JOI.string(),
+    imageUrl: JOI.string(),
+    parentID: JOI.string(),
+    status: JOI.string(),
 });

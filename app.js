@@ -7,6 +7,7 @@ import cors from 'cors'
 import Auth_Route from './Routes/auth.route.js';
 import User_Route from './Routes/user.route.js';
 import Customer_Route from './Routes/customer.route.js';
+import Category_Route from './Routes/category.route.js';
 
 import { verifyAccessToken } from './helpers/jwt_helper.js';
 
@@ -31,6 +32,9 @@ app.use('/customer', verifyAccessToken, Customer_Route);
 
 // Auth Route
 app.use('/auth', Auth_Route);
+
+// Category Route
+app.use('/category', Category_Route);
 
 // Error Handler
 app.use(async(req, res, next) => {

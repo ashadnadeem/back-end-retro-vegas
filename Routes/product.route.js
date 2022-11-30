@@ -49,7 +49,7 @@ router.get('/all', async (req, res, next) => {
 
 //Read Product by id
 router.get('/:id', async (req, res, next) => {
-    Product.find({ _id: req.params.id })
+    Product.findById(req.params.id)
         .then(doc => {
             if (doc) {
                 res.status(200).json(
@@ -79,6 +79,27 @@ router.get('/cat/:id', async (req, res, next) => {
             } else {
                 res.status(200).json(
                     Response(Header(0, 404, "No entry found for provided category"),)
+                )
+            }
+        })
+        .catch(err => {
+            res.status(200).json(
+                Response(Header(1, err.status, err.message))
+            );
+        });
+});
+
+//read products of categories
+router.get('/category/:id', async (req, res, next) => {
+    Product.find({ categoryID: req.params.id })
+        .then(doc => {
+            if (doc) {
+                res.status(200).json(
+                    Response(Header(0, null, null), { product: doc })
+                );
+            } else {
+                res.status(200).json(
+                    Response(Header(0, 404, "No entry found for provided product"),)
                 )
             }
         })
@@ -134,6 +155,7 @@ router.delete('/delete/:id', async (req, res, next) => {
 
         });
 })
+
 
 
 export default router;

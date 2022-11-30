@@ -13,6 +13,7 @@ const productSchema = new Schema({
     description: String,
     bid_settings: String,
     bids: Array,
+    status: String,
 });
 
 const Product = mongoose.model('product', productSchema);

@@ -58,3 +58,13 @@ export const categorySchema = JOI.object({
     parentID: JOI.string(),
     status: JOI.string(),
 });
+
+export const productSchema = JOI.object({
+    name: JOI.string(),
+    price: JOI.number(),
+    picture: JOI.string(),
+    storeID: JOI.string(),
+    categoryID:JOI.string(),
+    description: JOI.string(),
+});
+

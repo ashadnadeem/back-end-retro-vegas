@@ -2,13 +2,13 @@
 import { Router } from 'express';
 const router = Router();
 import Product from '../Models/product.model.js';
-import {productSchema} from '../helpers/validation_schema.js';
-import {Header, Response} from '../Models/response.model.js';
+import { productSchema } from '../helpers/validation_schema.js';
+import { Header, Response } from '../Models/response.model.js';
 
 
 
-//Create Category
-router.post('/new', async(req, res, next) => {
+//Create Product
+router.post('/new', async (req, res, next) => {
     try {
         const cat = await productSchema.validateAsync(req.body);
         const product = Product({
@@ -16,9 +16,9 @@ router.post('/new', async(req, res, next) => {
             price: cat.price,
             picture: cat.picture,
             storeID: cat.storeID,
-            categoryID:cat.categoryID,
+            categoryID: cat.categoryID,
             description: cat.description,
-            status: 'Active',
+            status: 'ACTIVE',
         });
         await product.save();
         res.status(200).json(
@@ -28,7 +28,7 @@ router.post('/new', async(req, res, next) => {
         );
     } catch (error) {
         // Check if error is from joi validation then send unaccessible property error
-        if(error.isJoi === true) error.status = 422;
+        if (error.isJoi === true) error.status = 422;
         res.status(200).json(
             Response(Header(1, error.status, error.message))
         );
@@ -36,10 +36,10 @@ router.post('/new', async(req, res, next) => {
 });
 
 // Get all Product
-router.get('/all', async(req, res, next) => {
+router.get('/all', async (req, res, next) => {
     try {
         const list = await Product.find();
-        res.send(Response(Header(0, null, null), {products: list}));
+        res.send(Response(Header(0, null, null), { products: list }));
     } catch (error) {
         res.status(200).json(
             Response(Header(1, error.status, error.message))
@@ -48,28 +48,49 @@ router.get('/all', async(req, res, next) => {
 });
 
 //Read Product by id
-router.get('/:id', async(req, res, next) => {
-        Product.find({categoryID : req.params.id})
-            .then(doc => {
+router.get('/:id', async (req, res, next) => {
+    Product.find({ _id: req.params.id })
+        .then(doc => {
             if (doc) {
                 res.status(200).json(
-                    Response(Header(0, null, null), {product: doc})
+                    Response(Header(0, null, null), { product: doc })
                 );
             } else {
                 res.status(200).json(
                     Response(Header(0, 404, "No entry found for provided product"),)
                 )
             }
-            })
-            .catch(err => {
+        })
+        .catch(err => {
+            res.status(200).json(
+                Response(Header(1, err.status, err.message))
+            );
+        });
+});
+
+//Read Product by category id
+router.get('/cat/:id', async (req, res, next) => {
+    Product.find({ categoryID: req.params.id })
+        .then(doc => {
+            if (doc) {
                 res.status(200).json(
-                    Response(Header(1, err.status, err.message))
+                    Response(Header(0, null, null), { product: doc })
                 );
-            });
+            } else {
+                res.status(200).json(
+                    Response(Header(0, 404, "No entry found for provided category"),)
+                )
+            }
+        })
+        .catch(err => {
+            res.status(200).json(
+                Response(Header(1, err.status, err.message))
+            );
+        });
 });
 
 //Update product
-router.put('/update:id', async(req, res, next)=>{
+router.put('/update:id', async (req, res, next) => {
     const result = req.body;
     Product.findOneAndUpdate({ _id: req.params.id }, {
         $set: {
@@ -77,26 +98,26 @@ router.put('/update:id', async(req, res, next)=>{
             price: result.price,
             picture: result.picture,
             storeID: result.storeID,
-            categoryID:result.categoryID,
+            categoryID: result.categoryID,
             description: result.description,
         }
     })
-    .then(result => {
-        res.status(200).json(Response(Header(0, null, null), {
-            product: result
-        }));
-    })
-    .catch(err => {
-        res.status(200).json(
-            Response(Header(1, err.status, err.message))
-        );
-    });
+        .then(result => {
+            res.status(200).json(Response(Header(0, null, null), {
+                product: result
+            }));
+        })
+        .catch(err => {
+            res.status(200).json(
+                Response(Header(1, err.status, err.message))
+            );
+        });
 });
 
 //delete Product
 router.delete('/delete/:id', async (req, res, next) => {
 
-    Product.findOneAndUpdate({_id: req.params.id }, {
+    Product.findOneAndUpdate({ _id: req.params.id }, {
         $set: {
             status: "INACTIVE"
         }

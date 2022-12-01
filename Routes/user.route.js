@@ -4,7 +4,9 @@ const router = Router();
 import bcrypt from 'bcrypt';
 import User from '../Models/user.model.js';
 import { verifyAccessToken } from '../helpers/jwt_helper.js';
-import {userSchema} from '../helpers/validation_schema.js'
+import {userSchema} from '../helpers/validation_schema.js';
+import {Header, Response} from '../Models/response.model.js';
+
 
 // Get all users
 router.get('/all', async(req, res, next) => {
@@ -18,9 +20,14 @@ router.get('/all', async(req, res, next) => {
             });
         });
 
-        res.send({users: result});
+        res.status(200).json(
+            Response(Header(0, null, null),{users: result})
+        );
+
     } catch (error) {
-        next(error);
+        res.status(200).json(
+            Response(Header(1, 500, error))
+        );
     }
 });
 
@@ -32,31 +39,41 @@ router.get('/:id', verifyAccessToken, async(req, res, next) => {
         User.findById(id)
             .then(doc => {
             if (doc) {
-                res.status(200).json({
-                    user: doc,
-                });
+                res.status(200).json(
+                    Response(Header(0, null, null),{
+                        user: doc,
+                    })
+                );
             } else {
-                res
-                .status(404)
-                .json({ message: "No valid entry found for provided ID" });
+                res.status(200).json(
+                    Response(Header(1, 404, "No valid entry found for provided ID"))
+                );
             }
             })
             .catch(err => {
-            console.log(err);
-            res.status(500).json({ error: err });
-            });
+                console.log(err);
+                res.status(200).json(
+                    Response(Header(1, 500, err))
+                );
+            }
+        );
+    } else{
+        res.status(200).json(
+            Response(Header(1, 404, "Unauthorized"))
+        );
     }
 });
 
 //Update User
 router.put('/:id', verifyAccessToken, async(req, res, next)=>{
-    
+    const id = req.payload.aud;
+    if(id == req.params.id) {
     const result = await userSchema.validateAsync(req.body);
     bcrypt.hash(req.body.password, 10, (err, hash) => {
         if (err) {
-            return res.status(500).json({
-                error: err
-            })
+            return res.status(200).json(
+                Response(Header(1, 500, err))
+            );
         }
         else {
             User.findOneAndUpdate({ _id: req.params.id }, {
@@ -71,18 +88,23 @@ router.put('/:id', verifyAccessToken, async(req, res, next)=>{
                 }
             })
                 .then(result => {
-                    res.status(200).json({
-                        user: result
-                    })
+                    res.status(200).json(
+                        Response(Header(0, null, null),{users: result})
+                    );
                 })
                 .catch(err => {
                     console.log(err);
-                    res.status(500).json({
-                        error: err
-                    })
+                    res.status(200).json(
+                        Response(Header(1, 500, err))
+                    );
                 })
         }
     })
+} else {
+    res.status(200).json(
+        Response(Header(1, 404, "Unauthorized"))
+    );
+}   
 });
 
 //delete User
@@ -94,15 +116,15 @@ router.delete('/:id', verifyAccessToken, async (req, res, next) => {
         }
     })
         .then(result => {
-            res.status(200).json({
-                user: result
-            })
+            res.status(200).json(
+                Response(Header(0, null, null),{users: result})
+            );
         })
         .catch(err => {
             console.log(err);
-            res.status(500).json({
-                error: err
-            })
+            res.status(200).json(
+                Response(Header(1, 500, err))
+            );
 
         })
 })

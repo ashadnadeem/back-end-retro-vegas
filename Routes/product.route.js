@@ -68,6 +68,28 @@ router.get('/:id', async (req, res, next) => {
         });
 });
 
+//read product by name
+router.post('/search', async (req, res, next) => {
+    const regex = new RegExp(req.body.query, 'i') // i for case insensitive
+    Product.find({ name: { $regex: regex } })
+        .then(doc => {
+            if (doc) {
+                res.status(200).json(
+                    Response(Header(0, null, null), { product: doc })
+                );
+            } else {
+                res.status(200).json(
+                    Response(Header(0, 404, "No entry found for provided product"),)
+                )
+            }
+        })
+        .catch(err => {
+            res.status(200).json(
+                Response(Header(1, err.status, err.message))
+            );
+        });
+});
+
 //Read Product by category id
 router.get('/cat/:id', async (req, res, next) => {
     Product.find({ categoryID: req.params.id })

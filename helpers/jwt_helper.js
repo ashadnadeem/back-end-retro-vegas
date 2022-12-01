@@ -1,5 +1,6 @@
 import JWT from 'jsonwebtoken';
 import createError from 'http-errors';
+import { Response, Header } from '../Models/response.model.js';
 
 export function signAccessToken(userId) {
     return new Promise((resolve, reject) => {
@@ -30,7 +31,9 @@ export function verifyAccessToken(req, res, next) {
     JWT.verify(token, secret, (err, payload) => {
         if (err) {
             const message = err.name === 'JsonWebTokenError' ? 'Unauthorized' : err.message;
-            return next(createError.Unauthorized(message));
+            return res.status(200).json(
+                Response(Header(1, 401, err.message))
+            );
         }
         req.payload = payload;
         next();

@@ -90,8 +90,8 @@ router.get('/cat/:id', async (req, res, next) => {
 });
 
 //read products of categories
-router.get('/category/:id', async (req, res, next) => {
-    Product.find({ categoryID: req.params.id })
+router.post('/category/:id', async (req, res, next) => {
+    Product.find({ categoryID: req.params.id }).limit(3).skip(req.body.offset)
         .then(doc => {
             if (doc) {
                 res.status(200).json(

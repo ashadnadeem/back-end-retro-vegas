@@ -156,7 +156,87 @@ router.get('/addtocart/:id', verifyAccessToken, async (req, res, next) => {
         });
 });
 
+// Add a productId to the customers favs
+router.get('/addtowishlist/:id', verifyAccessToken, async (req, res, next) => {
+    // Get User from Access Token
+    const userID = req.payload.aud;
+    // Get Product ID from URL
+    const productID = req.params.id;
+    // Find the customer by userID
+    Customer.findOne({ userID: userID })
+        .then(doc => {
+            if (doc) {
+                // Add the productID to the fav
+                doc.favs.push(productID);
+                // Save the customer
+                doc.save()
+                    .then(result => {
+                        // Success to save response
+                        res.status(200).json(
+                            Response(Header(0, null, null), { customer: result, })
+                        );
+                    })
+                    .catch(err => {
+                        // Error to save response
+                        res.status(200).json(
+                            Response(Header(1, err.status, err.message))
+                        );
+                    });
+            } else {
+                // No customer found response
+                res.status(200).json(
+                    Response(Header(0, 404, "No entry found for provided ID"),)
+                )
+            }
+        })
+        .catch(err => {
+            // Error to find customer response
+            res.status(200).json(
+                Response(Header(1, err.status, err.message))
+            );
+        });
+});
 
+// Remove a productId from the customers fav
+router.get('/removefromwishlist/:id', verifyAccessToken, async (req, res, next) => {
+    // Get User from Access Token
+    const userID = req.payload.aud;
+    // Get Product ID from URL
+    const productID = req.params.id;
+    // Find the customer by userID
+    Customer.findOne({ userID: userID })
+        .then(doc => {
+            if (doc) {
+                // Remove the productID from the fav
+                doc.favs.pull(productID);
+                // Save the customer
+                doc.save()
+                    .then(result => {
+                        // Success to save response
+                        res.status(200).json(
+                            Response(Header(0, null, null), { customer: result, })
+                        );
+                    })
+                    .catch(err => {
+                        // Error to save response
+                        res.status(200).json(
+                            Response(Header(1, err.status, err.message))
+                        );
+                    });
+            } else {
+                // No customer found response
+                res.status(200).json(
+                    Response(Header(0, 404, "No entry found for provided ID"),)
+                )
+            }
+        })
+        .catch(err => {
+            // Error to find customer response
+            res.status(200).json(
+                Response(Header(1, err.status, err.message))
+            );
+        });
+});
 
 
 export default router;

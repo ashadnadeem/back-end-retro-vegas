@@ -4,6 +4,7 @@ const router = Router();
 import Store from '../Models/store.model.js';
 import { verifyAccessToken } from '../helpers/jwt_helper.js';
 import {storeSchema} from '../helpers/validation_schema.js'
+import {Header, Response} from '../Models/response.model.js';
 
 // Get all stores
 router.get('/all', async(req, res, next) => {
@@ -64,29 +65,36 @@ router.get('/:id', verifyAccessToken, async(req, res, next) => {
 
 //Update store
 router.put('/:id', verifyAccessToken, async(req, res, next)=>{
-    
     const result = await storeSchema.validateAsync(req.body);
+    const id = req.payload.aud;
+
+    if(id == result.userID) {
         Store.findOneAndUpdate({ _id: req.params.id }, {
             $set: {
-                userID: valid.userID,
-                products: valid.products,
-                name: valid.name,
-                rating: valid.rating,
-                trustedSeller: valid.trustedSeller,
-                orders: valid.orders,
+                userID: result.userID,
+                products: result.products,
+                name: result.name,
+                rating: result.rating,
+                trustedSeller: result.trustedSeller,
+                orders: result.orders,
             }
         })
             .then(result => {
-                res.status(200).json({
-                customer: result
-                })
+                res.status(200).json(
+                    Response(Header(0, null, null),{store: result})
+                );
         })
                 .catch(err => {
                     console.log(err);
-                    res.status(500).json({
-                        error: err
-                    })
+                    res.status(200).json(
+                        Response(Header(1, 500, err))
+                        );
                 })
+    } else{
+        res.status(200).json(
+        Response(Header(1, 404, "Unauthorized"))
+        );
+    }
 });
 
 // //delete User

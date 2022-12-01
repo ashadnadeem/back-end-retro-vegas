@@ -7,6 +7,7 @@ import cors from 'cors'
 import Auth_Route from './Routes/auth.route.js';
 import User_Route from './Routes/user.route.js';
 import Customer_Route from './Routes/customer.route.js';
+import Store_Route from './Routes/store.route.js';
 import Category_Route from './Routes/category.route.js';
 import Product_Route from './Routes/product.route.js';
 
@@ -30,6 +31,9 @@ app.use('/user', verifyAccessToken, User_Route);
 
 // Customer Route
 app.use('/customer', verifyAccessToken, Customer_Route);
+
+// Store Route
+app.use('/store', verifyAccessToken, Store_Route);
 
 // Auth Route
 app.use('/auth', Auth_Route);

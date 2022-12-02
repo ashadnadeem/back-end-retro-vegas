@@ -71,7 +71,7 @@ router.get('/:id', async (req, res, next) => {
 //read product by name
 router.post('/search', async (req, res, next) => {
     const regex = new RegExp(req.body.query, 'i') // i for case insensitive
-    Product.find({ name: { $regex: regex } })
+    Product.find({ name: { $regex: regex } }).limit(3).skip(req.body.offset)
         .then(doc => {
             if (doc) {
                 res.status(200).json(

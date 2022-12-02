@@ -12,10 +12,10 @@ export const userSchema = JOI.object({
     email: JOI.string().email().required(),
     password: JOI.string().min(8).required(),
     name: JOI.string(),
-    phoneNo: JOI.string().min(11).max(11),
+    phoneNo: JOI.string().min(11).max(13),
     address: JOI.string(),
     role: JOI.string(),
-    status:JOI.string(),
+    status: JOI.string(),
     customer_ID: JOI.string(),
     store_ID: JOI.string(),
 });
@@ -64,7 +64,7 @@ export const productSchema = JOI.object({
     price: JOI.number(),
     picture: JOI.string(),
     storeID: JOI.string(),
-    categoryID:JOI.string(),
+    categoryID: JOI.string(),
     description: JOI.string(),
 });
 

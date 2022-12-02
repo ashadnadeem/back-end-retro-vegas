@@ -133,7 +133,7 @@ router.post('/category/:id', async (req, res, next) => {
 });
 
 //Update product
-router.put('/update:id', async (req, res, next) => {
+router.put('/update/:id', async (req, res, next) => {
     const result = req.body;
     Product.findOneAndUpdate({ _id: req.params.id }, {
         $set: {

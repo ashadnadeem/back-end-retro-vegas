@@ -3,21 +3,21 @@ import { Router } from 'express';
 const router = Router();
 import Store from '../Models/store.model.js';
 import { verifyAccessToken } from '../helpers/jwt_helper.js';
-import {storeSchema} from '../helpers/validation_schema.js'
-import {Header, Response} from '../Models/response.model.js';
+import { storeSchema } from '../helpers/validation_schema.js'
+import { Header, Response } from '../Models/response.model.js';
 
 // Get all stores
-router.get('/all', async(req, res, next) => {
+router.get('/all', async (req, res, next) => {
     try {
         const store_list = await Store.find();
-        res.send({Stores: store_list});
+        res.send({ Stores: store_list });
     } catch (error) {
         next(error);
     }
 });
 
 //Create Store
-router.post('/', async(req, res, next) => {
+router.post('/', async (req, res, next) => {
     try {
         const valid = await storeSchema.validateAsync(req.body);
 
@@ -33,42 +33,42 @@ router.post('/', async(req, res, next) => {
 
         res.status(200).json({
             message: "Store created!"
-        }) 
+        })
 
     } catch (error) {
         // Check if error is from joi validation then send unaccessible property error
-        if(error.isJoi === true) error.status = 422;
+        if (error.isJoi === true) error.status = 422;
         next(error);
     }
 });
 
 
 //Read store by id
-router.get('/:id', verifyAccessToken, async(req, res, next) => {
-        Store.findById(req.params.id)
-            .then(doc => {
+router.get('/:id', verifyAccessToken, async (req, res, next) => {
+    Store.findById(req.params.id)
+        .then(doc => {
             if (doc) {
                 res.status(200).json({
                     store: doc,
                 });
             } else {
                 res
-                .status(404)
-                .json({ message: "No valid entry found for provided ID" });
+                    .status(404)
+                    .json({ message: "No valid entry found for provided ID" });
             }
-            })
-            .catch(err => {
+        })
+        .catch(err => {
             console.log(err);
             res.status(500).json({ error: err });
-            });
+        });
 });
 
 //Update store
-router.put('/:id', verifyAccessToken, async(req, res, next)=>{
+router.put('/:id', verifyAccessToken, async (req, res, next) => {
     const result = await storeSchema.validateAsync(req.body);
     const id = req.payload.aud;
 
-    if(id == result.userID) {
+    if (id == result.userID) {
         Store.findOneAndUpdate({ _id: req.params.id }, {
             $set: {
                 userID: result.userID,
@@ -81,18 +81,18 @@ router.put('/:id', verifyAccessToken, async(req, res, next)=>{
         })
             .then(result => {
                 res.status(200).json(
-                    Response(Header(0, null, null),{store: result})
+                    Response(Header(0, null, null), { store: result })
                 );
-        })
-                .catch(err => {
-                    console.log(err);
-                    res.status(200).json(
-                        Response(Header(1, 500, err))
-                        );
-                })
-    } else{
+            })
+            .catch(err => {
+                console.log(err);
+                res.status(200).json(
+                    Response(Header(1, 500, err))
+                );
+            })
+    } else {
         res.status(200).json(
-        Response(Header(1, 404, "Unauthorized"))
+            Response(Header(1, 404, "Unauthorized"))
         );
     }
 });

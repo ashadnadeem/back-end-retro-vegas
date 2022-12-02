@@ -69,21 +69,10 @@ router.put('/:id', verifyAccessToken, async(req, res, next)=>{
     const id = req.payload.aud;
     if(id == req.params.id) {
     const result = await userSchema.validateAsync(req.body);
-    bcrypt.hash(req.body.password, 10, (err, hash) => {
-        if (err) {
-            return res.status(200).json(
-                Response(Header(1, 500, err))
-            );
-        }
-        else {
-            User.findOneAndUpdate({ _id: req.params.id }, {
+    User.findOneAndUpdate({ _id: req.params.id }, {
                 $set: {
-                    email: result.email,
-                    password: result.password,
                     name: result.name,
                     phoneNo: result.phoneNo,
-                    role: result.role,
-                    status: result.status,
                     address: result.address,
                 }
             })
@@ -98,8 +87,6 @@ router.put('/:id', verifyAccessToken, async(req, res, next)=>{
                         Response(Header(1, 500, err))
                     );
                 })
-        }
-    })
 } else {
     res.status(200).json(
         Response(Header(1, 404, "Unauthorized"))

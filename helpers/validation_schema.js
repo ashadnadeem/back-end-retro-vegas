@@ -9,11 +9,10 @@ export const authSchema = JOI.object({
 
 export const userSchema = JOI.object({
     _id: JOI.string,
-    email: JOI.string().email().required(),
-    password: JOI.string().min(8).required(),
-    name: JOI.string(),
-    phoneNo: JOI.string().min(11).max(11),
-    address: JOI.string(),
+    email: JOI.string().email(),
+    name: JOI.string().required(),
+    phoneNo: JOI.string().min(11).max(13).required(),
+    address: JOI.string().required(),
     role: JOI.string(),
     status:JOI.string(),
     customer_ID: JOI.string(),

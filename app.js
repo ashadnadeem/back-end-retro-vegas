@@ -10,6 +10,7 @@ import Customer_Route from './Routes/customer.route.js';
 import Store_Route from './Routes/store.route.js';
 import Category_Route from './Routes/category.route.js';
 import Product_Route from './Routes/product.route.js';
+import Elastic_Prod_Route from './Routes/elasticProd.route.js';
 
 import { verifyAccessToken } from './helpers/jwt_helper.js';
 
@@ -43,6 +44,9 @@ app.use('/category', Category_Route);
 
 //Product Route
 app.use('/product', Product_Route);
+
+// Product Route for Elasticsearch
+app.use('/elasticProd', Elastic_Prod_Route);
 
 // Error Handler
 app.use(async (req, res, next) => {

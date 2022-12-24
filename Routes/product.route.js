@@ -12,6 +12,7 @@ import { Header, Response } from '../Models/response.model.js';
 router.post('/new', async (req, res, next) => {
     try {
         const cat = await productSchema.validateAsync(req.body);
+        console.log(cat);
         const product = Product({
             name: cat.name,
             price: cat.price,
@@ -22,6 +23,26 @@ router.post('/new', async (req, res, next) => {
             status: 'ACTIVE',
         });
         await product.save();
+        // make a post request via axios to add a product document
+        const body = {
+            name: product.name,
+            price: product.price,
+            picture: product.picture,
+            storeID: product.storeID,
+            categoryID: product.categoryID,
+            description: product.description,
+            bids: product.bids,
+            status: product.status,
+        };
+        await axios.post(`http://localhost:9200/retrovegas/product/${product._id}`, body)
+            .then((response) => {
+                console.log(`Product: ${product._id} Added successfully`);
+            })
+            .catch((error) => {
+                console.log(error);
+                console.log(`Product: ${product._id} Encountered isues while adding`);
+            });
+
         res.status(200).json(
             Response(Header(0, null, null), {
                 message: "Product created!"
@@ -237,7 +258,15 @@ router.delete('/delete/:id', async (req, res, next) => {
             status: "INACTIVE"
         }
     })
-        .then(result => {
+        .then(async result => {
+            await axios.delete(`http://localhost:9200/retrovegas/product/${req.params.id}`)
+            .then((response) => {
+                console.log(`Product: ${req.params.id} Deleted successfully`);
+            })
+            .catch((error) => {
+                console.log(`Product: ${req.params.id} Encountered isues while deleting`);
+            });
+
             res.status(200).json(Response(Header(0, null, null), {
                 message: "Product deleted."
             }))
